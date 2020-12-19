@@ -27,6 +27,7 @@ class MyPolygon(object):
         self.points_ids = points_ids.copy()
 
         self.draw_lines()
+        self.draw_points()
 
         self.scale = 1
 
@@ -108,8 +109,8 @@ class MyPolygon(object):
 
         self.calculate_center()
 
-        self.draw_points()
         self.draw_lines()
+        self.draw_points()
 
     def rotation(self, angle):
         self.angle = angle
@@ -119,8 +120,8 @@ class MyPolygon(object):
             self.points[i][1] = self.center[1] + (self.initial_points[i][0] - self.center[0]) * math.sin(
                 angle) + (self.initial_points[i][1] - self.center[1]) * math.cos(angle)
 
-        self.draw_points()
         self.draw_lines()
+        self.draw_points()
 
     def calculate_center(self):
         summa_x = 0
@@ -257,6 +258,7 @@ class Example(Frame):
         if self._drag_data["is_poly"]:
             self.polygons[self._drag_data["poly_id"]].get_points()[self._drag_data["id"]] = [event.x, event.y]
             self.polygons[self._drag_data["poly_id"]].draw_lines()
+            self.polygons[self._drag_data["poly_id"]].draw_points()
         else:
             self.points[self._drag_data["id"]][0] = event.x
             self.points[self._drag_data["id"]][1] = event.y
