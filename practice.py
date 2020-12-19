@@ -96,7 +96,6 @@ class MyPolygon(object):
 
             new_points.append([new_points[i][0] + x_offset, new_points[i][1] + y_offset])
 
-
         for i in range(len(self.initial_points) - 1):
             x_offset = (self.initial_points[i + 1][0] - self.initial_points[i][0]) * scale / self.scale
             y_offset = (self.initial_points[i + 1][1] - self.initial_points[i][1]) * scale / self.scale
@@ -160,8 +159,8 @@ class Example(Frame):
 
         self.entry = Entry(parent, width=20,bd=3)
 
-        self.loading = Button(parent, text="Import Polygon", command= self.import_poly)
-        self.loadImage = Button(parent, text="Open IMG", command= self.openImage)
+        self.loading = Button(parent, text="Import Polygon", command= self.import_polygons)
+        self.loadImage = Button(parent, text="Open IMG", command= self.open_image)
 
         self.entry.pack()
         self.scale.pack()
@@ -281,7 +280,7 @@ class Example(Frame):
         if self.entry.get():
             self.polygons[int(self.entry.get())].rotation(math.pi * int(event) / 180)
 
-    def openImage(self):
+    def open_image(self):
         path = fd.askopenfilename()
  
         openUserImage = Image.open(path)
@@ -292,8 +291,7 @@ class Example(Frame):
         self.bg_id = self.canvas.create_image(width // 2, height // 2, image=userImage, tags=["image"])
         self.canvas.tag_lower("image")
 
-
-    def import_poly(self):
+    def import_polygons(self):
         color = "#0000FF"
 
         file_name = fd.askopenfilename()
