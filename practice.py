@@ -5,7 +5,7 @@ from tkinter import filedialog as fd
 from PIL import Image, ImageFilter, ImageTk
 import math
 
-radius = 3
+radius = 5
 width = 1700
 height = 700
 
@@ -27,6 +27,7 @@ class MyPolygon(object):
         self.points_ids = points_ids.copy()
 
         self.draw_lines()
+        self.draw_points()
 
         self.scale = 1
 
@@ -108,8 +109,8 @@ class MyPolygon(object):
 
         self.calculate_center()
 
-        self.draw_points()
         self.draw_lines()
+        self.draw_points()
 
     def rotation(self, angle):
         self.angle = angle
@@ -159,9 +160,11 @@ class Example(Frame):
 
         self.entry = Entry(parent, width=20,bd=3)
 
+        self.finish_poly_button = Button(parent, text="Finish Polygon", command=self.finish_poly)
         self.loading = Button(parent, text="Import Polygon", command= self.import_polygons)
         self.loadImage = Button(parent, text="Open IMG", command= self.open_image)
 
+        self.finish_poly_button.pack()
         self.entry.pack()
         self.scale.pack()
         self.rotation.pack()
@@ -170,13 +173,11 @@ class Example(Frame):
 
         self._drag_data = {"x": 0, "y": 0, "item": None, "id": -1, "is_poly": False, "poly_id": -1}
 
-        self.canvas.tag_bind("point", "<ButtonPress-3>", self.drag_start)
-        self.canvas.tag_bind("point", "<ButtonRelease-3>", self.drag_stop)
-        self.canvas.tag_bind("point", "<B3-Motion>", self.drag)
-        self.canvas.bind("<ButtonPress-2>", self.finish_poly)
-        self.canvas.bind("<Button-1>", self.create_point)
+        self.canvas.tag_bind("point", "<ButtonRelease-1>", self.drag_stop)
+        self.canvas.tag_bind("point", "<B1-Motion>", self.drag)
+        self.canvas.bind("<ButtonPress-1>", self.drag_start)
 
-    def finish_poly(self, event):
+    def finish_poly(self):
         if len(self.points) > 2:
             self.create_poly(self.points, self.points_ids)
 
@@ -205,27 +206,31 @@ class Example(Frame):
             self.polygons.append(current_poly)
 
     def drag_start(self, event):
-        """Begining drag of an object"""
-        # record the item and its location
-        id = self.canvas.find_closest(event.x, event.y)[0]
+        """Begining drag of an object. Record the item and its location"""
+        id = self.canvas.find_closest(event.x, event.y)
 
-        if self.bg_id != id:
-            self._drag_data["item"] = id
-            self._drag_data["x"] = event.x
-            self._drag_data["y"] = event.y
+        if len(id) and abs((self.canvas.coords(id[0])[0] + self.canvas.coords(id[0])[2]) / 2 - event.x) \
+                + abs((self.canvas.coords(id[0])[1] + self.canvas.coords(id[0])[3]) / 2 - event.y) \
+                <= 2 * self.point_radius:
+            if self.bg_id != id[0]:
+                self._drag_data["item"] = id[0]
+                self._drag_data["x"] = event.x
+                self._drag_data["y"] = event.y
 
-            if self.is_intersection([event.x, event.y]) != -1:
-                self._drag_data["id"] = self.is_intersection([event.x, event.y])
-                self._drag_data["is_poly"] = False
-            else:
-                self._drag_data["is_poly"] = True
-                for poly_id in range(len(self.polygons)):
-                    point_id = self.polygons[poly_id].is_intersection([event.x, event.y])
+                if self.is_intersection([event.x, event.y]) != -1:
+                    self._drag_data["id"] = self.is_intersection([event.x, event.y])
+                    self._drag_data["is_poly"] = False
+                else:
+                    self._drag_data["is_poly"] = True
+                    for poly_id in range(len(self.polygons)):
+                        point_id = self.polygons[poly_id].is_intersection([event.x, event.y])
 
-                    if point_id > -1:
-                        self._drag_data["poly_id"] = poly_id
-                        self._drag_data["id"] = point_id
-                        break
+                        if point_id > -1:
+                            self._drag_data["poly_id"] = poly_id
+                            self._drag_data["id"] = point_id
+                            break
+        else:
+            self.create_point(event)
 
     def drag_stop(self, event):
         """End drag of an object"""
