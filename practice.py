@@ -149,25 +149,35 @@ class Example(Frame):
         self.points_ids = []
 
         self.canvas = Canvas(width=width, height=height, background="bisque")
-        self.canvas.pack(fill="both", expand=True)
+        # self.canvas.pack(fill="both", expand=True)
+        self.canvas.grid(row=0, column=0, columnspan=3)
 
-        self.scale = Scale(parent, digits=3,command=self.change_scale, orient=HORIZONTAL, length=1000, from_=0.25, to=2,
+
+        self.scale = Scale(parent, digits=3,command=self.change_scale, orient=HORIZONTAL, length=550, from_=0.25, to=2,
                            tickinterval=0.25, resolution=0.05, label="Масштаб")
+        self.scale.set(1)
 
-        self.rotation = Scale(parent, digits=3, command=self.rotate, orient=HORIZONTAL, length=1000, from_=-180,
+        self.rotation = Scale(parent, digits=3, command=self.rotate, orient=HORIZONTAL, length=550, from_=-180,
                            to=180,
                            tickinterval=30, resolution=1, label="Поворот")
 
         self.entry = Entry(parent, width=20,bd=3)
 
-        self.loading = Button(parent, text="Import Polygon", command= self.import_polygons)
-        self.loadImage = Button(parent, text="Open IMG", command= self.open_image)
+        self.loading = Button(parent, text="Import Polygon", command= self.import_polygons, width=20, height=2)
+        self.loadImage = Button(parent, text="Open IMG", command= self.open_image, width=20, height=2)
 
-        self.entry.pack()
-        self.scale.pack()
-        self.rotation.pack()
-        self.loading.pack()
-        self.loadImage.pack()
+        self.entry.grid(row=1, column=0, sticky=W)
+        self.loading.grid(row=1, column=1, sticky=W)
+        self.scale.grid(row=2, column=0, columnspan=2, sticky=W)
+        self.loadImage.grid(row=2, column=1, sticky=W)
+        self.rotation.grid(row=3, column=0, columnspan=2, sticky=W)
+
+        # self.entry.pack()
+        # self.scale.pack()
+        # self.rotation.pack()
+        # self.loading.pack()
+        # self.loadImage.pack()
+
 
         self._drag_data = {"x": 0, "y": 0, "item": None, "id": -1, "is_poly": False, "poly_id": -1}
 
@@ -318,5 +328,6 @@ class Example(Frame):
 
 if __name__ == "__main__":
     root = Tk()
-    Example(root).pack(fill="both", expand=True)
+    # Example(root).pack(fill="both", expand=True)
+    Example(root).grid()
     root.mainloop()
