@@ -268,7 +268,6 @@ class Example(Frame):
         if self._drag_data["is_poly"]:
             self.polygons[self._drag_data["poly_id"]].get_points()[self._drag_data["id"]] = [event.x, event.y]
             self.polygons[self._drag_data["poly_id"]].draw_lines()
-            self.polygons[self._drag_data["poly_id"]].draw_points()
         else:
             self.points[self._drag_data["id"]][0] = event.x
             self.points[self._drag_data["id"]][1] = event.y
