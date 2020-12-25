@@ -88,20 +88,20 @@ class MyPolygon(object):
         if scale == self.scale:
             return
 
-        new_points = [self.points[0]]
-        new_initial_points = [self.initial_points[0]]
+        new_points = []
+        new_initial_points = []
 
-        for i in range(len(self.points) - 1):
-            x_offset = (self.points[i + 1][0] - self.points[i][0]) * scale / self.scale
-            y_offset = (self.points[i + 1][1] - self.points[i][1]) * scale / self.scale
+        for i in range(len(self.points)):
+            x_offset = (self.points[i][0] - self.center[0]) * scale / self.scale
+            y_offset = (self.points[i][1] - self.center[1]) * scale / self.scale
 
-            new_points.append([new_points[i][0] + x_offset, new_points[i][1] + y_offset])
+            new_points.append([self.center[0] + x_offset, self.center[1] + y_offset])
 
-        for i in range(len(self.initial_points) - 1):
-            x_offset = (self.initial_points[i + 1][0] - self.initial_points[i][0]) * scale / self.scale
-            y_offset = (self.initial_points[i + 1][1] - self.initial_points[i][1]) * scale / self.scale
+        for i in range(len(self.initial_points)):
+            x_offset = (self.initial_points[i][0] - self.center[0]) * scale / self.scale
+            y_offset = (self.initial_points[i][1] - self.center[1]) * scale / self.scale
 
-            new_initial_points.append([new_initial_points[i][0] + x_offset, new_initial_points[i][1] + y_offset])
+            new_initial_points.append([self.center[0] + x_offset, self.center[1] + y_offset])
 
         self.initial_points = new_initial_points
         self.points = new_points
