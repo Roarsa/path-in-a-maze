@@ -333,6 +333,54 @@ class Example(Frame):
 
     # Algorithm 
 
+    def localization(self, point, poly):
+        x = point[0]
+        y = point[1]
+
+        neighbors = []
+
+        vertexes = poly.points
+
+        count = len(vertexes)
+
+        for i in range(count):
+            x1 = vertexes[i][0]
+            x2 = vertexes[(i + 1) % count][0]
+            y1 = vertexes[i][1]
+            y2 = vertexes[(i + 1) % count][1]
+
+            if y2 > y and y1 <= y or y1 > y and y2 <= y:
+                neighbors.append(((x1-x2) * y + x2 * y1 - x1 * y2)/(y1 - y2))
+
+        if len(neighbors) < 2:
+            return False
+        else:
+            left = []
+            right = []
+
+            for i in range(len(neighbors)):
+                if x > neighbors[i]:
+                    left.append(neighbors[i])
+                elif x < neighbors[i]:
+                    right.append(neighbors[i])
+
+            if len(left) == len(right):
+                if len(left) % 2:
+                    return True
+                else:
+                    return False
+            else:
+                if len(left) % 2:
+                    return True
+
+                return False
+
+    def get_polygon(self, point):
+        for polygon in self.polygons:
+            for p in polygon.points:
+                if point[0] == p[0] and point[1] == p[1]:
+                    return polygon
+
     def find_path(self):
         def intersection(polygons, edge):
             for polygon in polygons:
@@ -359,9 +407,15 @@ class Example(Frame):
 
         for point_id in range(length):
             for point_id2 in range(point_id, length):
-                if (intersection(self.polygons, [all_points[point_id], all_points[point_id2]])):
-                    print('intersect')
-                    matrix[point_id2][point_id] = distance(all_points[point_id], all_points[point_id2])
+                p1 = all_points[point_id]
+                p2 = all_points[point_id2]
+                if (intersection(self.polygons, [p1, p2])):
+                    if (point_id != 0 and point_id2 != length-1):
+                        polygon1 = self.get_polygon(p1)
+                        if (polygon1 == self.get_polygon(p2)):
+                            if (self.localization([(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2], polygon1)):
+                                continue
+                    matrix[point_id2][point_id] = distance(p1, p2)
                     matrix[point_id][point_id2] = matrix[point_id2][point_id]
 
         print(matrix)
