@@ -158,11 +158,11 @@ class Example(Frame):
         self.canvas.grid(row=0, column=0, columnspan=3)
 
 
-        self.scale = Scale(parent, digits=3,command=self.change_scale, orient=HORIZONTAL, length=550, from_=0.25, to=2,
+        self.scale = Scale(parent, digits=3,command=self.change_scale, orient=HORIZONTAL, length=300, from_=0.25, to=2,
                            tickinterval=0.25, resolution=0.05, label="Масштаб")
         self.scale.set(1)
 
-        self.rotation = Scale(parent, digits=3, command=self.rotate, orient=HORIZONTAL, length=550, from_=-180,
+        self.rotation = Scale(parent, digits=3, command=self.rotate, orient=HORIZONTAL, length=300, from_=-180,
                            to=180,
                            tickinterval=30, resolution=1, label="Поворот")
 
@@ -181,7 +181,7 @@ class Example(Frame):
         self.scale.grid(row=2, column=0, columnspan=2, sticky=W)
         self.loadImage.grid(row=2, column=1, sticky=W)
         self.rotation.grid(row=3, column=0, columnspan=2, sticky=W)
-        self.findPath.grid(row=1, column=5, sticky=W)
+        self.findPath.grid(row=1, column=2, sticky=W)
 
         # self.entry.pack()
         # self.scale.pack()
