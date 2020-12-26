@@ -220,11 +220,8 @@ class Example(Frame):
 
         self.loading = Button(parent, text="Import Polygon", command= self.import_polygons, width=20, height=2)
         self.loadImage = Button(parent, text="Open IMG", command= self.open_image, width=20, height=2)
-<<<<<<< HEAD
         self.findPath = Button(parent, text="Find path", command= self.find_path, width=20, height=2)
-=======
         self.export = Button(parent, text="Export Polygons", command= self.export_polygons, width=20, height=2)
->>>>>>> export_xml
 
         self.entry.grid(row=1, column=0, sticky=W)
         self.loading.grid(row=1, column=1, sticky=W)
