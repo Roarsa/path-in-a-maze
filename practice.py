@@ -220,10 +220,15 @@ class Example(Frame):
 
         self.loading = Button(parent, text="Import Polygon", command= self.import_polygons, width=20, height=2)
         self.loadImage = Button(parent, text="Open IMG", command= self.open_image, width=20, height=2)
+<<<<<<< HEAD
         self.findPath = Button(parent, text="Find path", command= self.find_path, width=20, height=2)
+=======
+        self.export = Button(parent, text="Export Polygons", command= self.export_polygons, width=20, height=2)
+>>>>>>> export_xml
 
         self.entry.grid(row=1, column=0, sticky=W)
         self.loading.grid(row=1, column=1, sticky=W)
+        self.export.grid(row=3, column=1, sticky=W)
         self.scale.grid(row=2, column=0, columnspan=2, sticky=W)
         self.loadImage.grid(row=2, column=1, sticky=W)
         self.rotation.grid(row=3, column=0, columnspan=2, sticky=W)
@@ -435,11 +440,11 @@ class Example(Frame):
 
     def open_image(self):
         path = fd.askopenfilename()
- 
+
         openUserImage = Image.open(path)
-     
+
         userImage = ImageTk.PhotoImage(openUserImage)
-     
+
         self.canvas.image = userImage
         self.bg_id = self.canvas.create_image(width // 2, height // 2, image=userImage, tags=["image"])
         self.canvas.tag_lower("image")
@@ -466,6 +471,18 @@ class Example(Frame):
                 ))
 
             self.create_poly(points, points_ids)
+    def export_polygons(self):
+        file_name = fd.asksaveasfilename()
+        root = ET.Element("polygons")
+        for _polygon in self.polygons:
+            polygon = ET.Element("polygon")
+            root.append(polygon)
+            for _point in _polygon.points:
+                point = ET.SubElement(polygon, "point")
+                point.attrib['x'] = str(_point[0])
+                point.attrib['y'] = str(_point[1])
+        tree = ET.ElementTree(root)
+        tree.write(file_name)
 
 if __name__ == "__main__":
     print(line_intersect([[1,2], [3,4]], [[1,3], [3,5]]))
