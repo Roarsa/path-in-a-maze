@@ -467,7 +467,7 @@ class Example(Frame):
                 all_points[res[i]][1],
                 all_points[res[right_index]][0],
                 all_points[res[right_index]][1],
-                fill="red")
+                fill="red", width=2)
 
 
     # TODO: Refactor?
