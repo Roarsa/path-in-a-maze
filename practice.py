@@ -1,13 +1,17 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from tkinter import *
 from xml.dom import minidom
 import xml.etree.cElementTree as ET
 from tkinter import filedialog as fd
 from PIL import Image, ImageFilter, ImageTk
 import math
+from utils import *
 
 radius = 3
-width = 1700
-height = 700
+width = 1200
+height = 500
 
 class MyPolygon(object):
     def __init__(self, points, points_ids, canvas):
@@ -19,6 +23,9 @@ class MyPolygon(object):
 
         for point in self.points:
             self.initial_points.append([point[0], point[1]])
+
+        self.boundary_points = self.get_boundary_points(self.initial_points)
+        print(self.boundary_points)
 
         self.count = len(points)
 
@@ -35,6 +42,42 @@ class MyPolygon(object):
 
         self.center = 0
         self.calculate_center()
+
+    def get_boundary_points(self, points):
+        n = len(points)
+        min_point = points[0]
+        result = []
+
+        for i in range(1,n):
+            if points[i][1] == min_point[1] and  min_point[0] > points[i][0]:
+                min_point = points[i]
+            elif points[i][1] > min_point[1]:
+                min_point = points[i]
+
+        result.append(min_point)
+
+        far_point = None
+        point = min_point
+        while far_point is not min_point:
+            p1 = None
+            for p in points:
+                if p is point:
+                    continue
+                else:
+                    p1 = p
+                    break
+            far_point = p1
+
+            for p2 in points:
+                if p2 is point or p2 is p1:
+                    continue
+                else:
+                    direction = get_orientation(point, far_point, p2)
+                    if direction > 0:
+                        far_point = p2
+            point = far_point
+            result.append(far_point)
+        return result[:len(result)-1]
 
     def draw_lines(self):
         for line in self.lines_ids:
@@ -64,6 +107,17 @@ class MyPolygon(object):
                 fill="#0000FF",
                 tags=("point")
             ))
+        
+        for point_id in range(len(self.boundary_points)):
+            self.canvas.create_oval(
+                self.boundary_points[point_id][0] - self.point_radius,
+                self.boundary_points[point_id][1] - self.point_radius,
+                self.boundary_points[point_id][0] + self.point_radius,
+                self.boundary_points[point_id][1] + self.point_radius,
+                outline="green",
+                fill="green",
+                tags=("point")
+            )
 
     def set_vertex(self, id, point):
         self.points[id] = point.copy()
@@ -147,6 +201,7 @@ class Example(Frame):
         self.mode = False
         self.points = []
         self.points_ids = []
+        self.matrix = []
 
         self.canvas = Canvas(width=width, height=height, background="bisque")
         # self.canvas.pack(fill="both", expand=True)
@@ -165,12 +220,14 @@ class Example(Frame):
 
         self.loading = Button(parent, text="Import Polygon", command= self.import_polygons, width=20, height=2)
         self.loadImage = Button(parent, text="Open IMG", command= self.open_image, width=20, height=2)
+        self.findPath = Button(parent, text="Find path", command= self.find_path, width=20, height=2)
 
         self.entry.grid(row=1, column=0, sticky=W)
         self.loading.grid(row=1, column=1, sticky=W)
         self.scale.grid(row=2, column=0, columnspan=2, sticky=W)
         self.loadImage.grid(row=2, column=1, sticky=W)
         self.rotation.grid(row=3, column=0, columnspan=2, sticky=W)
+        self.findPath.grid(row=1, column=5, sticky=W)
 
         # self.entry.pack()
         # self.scale.pack()
@@ -272,6 +329,91 @@ class Example(Frame):
             self.points[self._drag_data["id"]][0] = event.x
             self.points[self._drag_data["id"]][1] = event.y
 
+    # Algorithm 
+
+    def find_path(self):
+        def intersection(polygons, edge):
+            for polygon in polygons:
+                length = len(polygon.points)
+                for point_id in range(length):
+                    line = [polygon.points[point_id], polygon.points[(point_id + 1) % length]]
+                    if (line_intersect(edge, line)):
+                        return False
+            return True
+        
+        def distance(point1, point2):
+            return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
+        
+        all_points = [self.points[0]]
+        for polygon in self.polygons:
+            all_points += polygon.points
+        all_points += [self.points[1]]
+
+        print(self.points)
+        
+        length = len(all_points)
+        matrix = [[10 ** 10 for column in range(length)]  
+                    for row in range(length)]
+
+        for point_id in range(length):
+            for point_id2 in range(point_id, length):
+                if (intersection(self.polygons, [all_points[point_id], all_points[point_id2]])):
+                    print('intersect')
+                    matrix[point_id2][point_id] = distance(all_points[point_id], all_points[point_id2])
+                    matrix[point_id][point_id2] = matrix[point_id2][point_id]
+
+        print(matrix)
+
+        def dijkstra(start, n, w):
+            INF = 10 ** 10
+            dist = [INF] * n
+            dist[start] = 0
+            prev = [None] * n
+            used = [False] * n
+            min_dist = 0
+            min_vertex = start
+            while min_dist < INF:
+                i = min_vertex 
+                used[i] = True 
+                for j in range(n): 
+                    if dist[i] + w[i][j] < dist[j]: 
+                        dist[j] = dist[i] + w[i][j]
+                        prev[j] = i
+                min_dist = INF
+                for j in range(n):
+                    if not used[j] and dist[j] < min_dist:
+                        min_dist = dist[j]
+                        min_vertex = j
+            path = []
+            while j is not None:
+                path.append(j)
+                j = prev[j]
+            path = path[::-1]
+            print(path)
+            return path
+
+        res = dijkstra(0, length, matrix)
+
+        for i in res:
+            self.canvas.create_oval(
+            all_points[i][0] - self.point_radius,
+            all_points[i][1] - self.point_radius,
+            all_points[i][0] + self.point_radius,
+            all_points[i][1] + self.point_radius,
+            outline="red",
+            fill="red",
+            tags=("point")
+            )
+        
+        for i in range(len(res)-1):
+            right_index = (i + 1) % len(res)
+            self.canvas.create_line(all_points[res[i]][0],
+                all_points[res[i]][1],
+                all_points[res[right_index]][0],
+                all_points[res[right_index]][1],
+                fill="red")
+
+
     # TODO: Refactor?
     def is_intersection(self, point):
         for i in range(len(self.points)):
@@ -326,7 +468,12 @@ class Example(Frame):
             self.create_poly(points, points_ids)
 
 if __name__ == "__main__":
+    print(line_intersect([[1,2], [3,4]], [[1,3], [3,5]]))
+    print(line_intersect([[3,4], [1,2]], [[4,5], [1,2]]))
+    print(line_intersect([[0,0], [5,5]], [[0,5], [5,0]]))
+    print(line_intersect([[5,5], [0,0]], [[0,5], [5,0]]))
     root = Tk()
+    r = Example(root)
     # Example(root).pack(fill="both", expand=True)
-    Example(root).grid()
+    r.grid()
     root.mainloop()
