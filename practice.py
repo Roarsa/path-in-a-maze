@@ -107,7 +107,7 @@ class MyPolygon(object):
                 fill="#0000FF",
                 tags=("point")
             ))
-        
+
         for point_id in range(len(self.boundary_points)):
             self.canvas.create_oval(
                 self.boundary_points[point_id][0] - self.point_radius,
@@ -222,7 +222,9 @@ class Example(Frame):
         self.loadImage = Button(parent, text="Open IMG", command= self.open_image, width=20, height=2)
         self.findPath = Button(parent, text="Find path", command= self.find_path, width=20, height=2)
         self.export = Button(parent, text="Export Polygons", command= self.export_polygons, width=20, height=2)
+        self.reset = Button(parent, text="Reset", command= self.reset_canvas, width=20, height=2)
 
+        self.reset.grid(row=3, column=2, sticky=W)
         self.entry.grid(row=1, column=0, sticky=W)
         self.loading.grid(row=1, column=1, sticky=W)
         self.export.grid(row=3, column=1, sticky=W)
@@ -331,7 +333,12 @@ class Example(Frame):
             self.points[self._drag_data["id"]][0] = event.x
             self.points[self._drag_data["id"]][1] = event.y
 
-    # Algorithm 
+    def reset_canvas(self):
+        self.polygons = []
+        self.points = []
+        self.canvas.delete("all")
+
+    # Algorithm
 
     def localization(self, point, poly):
         x = point[0]
@@ -390,19 +397,19 @@ class Example(Frame):
                     if (line_intersect(edge, line)):
                         return False
             return True
-        
+
         def distance(point1, point2):
             return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
-        
+
         all_points = [self.points[0]]
         for polygon in self.polygons:
             all_points += polygon.points
         all_points += [self.points[1]]
 
         print(self.points)
-        
+
         length = len(all_points)
-        matrix = [[10 ** 10 for column in range(length)]  
+        matrix = [[10 ** 10 for column in range(length)]
                     for row in range(length)]
 
         for point_id in range(length):
@@ -429,10 +436,10 @@ class Example(Frame):
             min_dist = 0
             min_vertex = start
             while min_dist < INF:
-                i = min_vertex 
-                used[i] = True 
-                for j in range(n): 
-                    if dist[i] + w[i][j] < dist[j]: 
+                i = min_vertex
+                used[i] = True
+                for j in range(n):
+                    if dist[i] + w[i][j] < dist[j]:
                         dist[j] = dist[i] + w[i][j]
                         prev[j] = i
                 min_dist = INF
@@ -460,7 +467,7 @@ class Example(Frame):
             fill="red",
             tags=("point")
             )
-        
+
         for i in range(len(res)-1):
             right_index = (i + 1) % len(res)
             self.canvas.create_line(all_points[res[i]][0],
