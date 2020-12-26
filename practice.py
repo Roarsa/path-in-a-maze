@@ -24,9 +24,6 @@ class MyPolygon(object):
         for point in self.points:
             self.initial_points.append([point[0], point[1]])
 
-        self.boundary_points = self.get_boundary_points(self.initial_points)
-        print(self.boundary_points)
-
         self.count = len(points)
 
         self.lines_ids = []
@@ -42,42 +39,6 @@ class MyPolygon(object):
 
         self.center = 0
         self.calculate_center()
-
-    def get_boundary_points(self, points):
-        n = len(points)
-        min_point = points[0]
-        result = []
-
-        for i in range(1,n):
-            if points[i][1] == min_point[1] and  min_point[0] > points[i][0]:
-                min_point = points[i]
-            elif points[i][1] > min_point[1]:
-                min_point = points[i]
-
-        result.append(min_point)
-
-        far_point = None
-        point = min_point
-        while far_point is not min_point:
-            p1 = None
-            for p in points:
-                if p is point:
-                    continue
-                else:
-                    p1 = p
-                    break
-            far_point = p1
-
-            for p2 in points:
-                if p2 is point or p2 is p1:
-                    continue
-                else:
-                    direction = get_orientation(point, far_point, p2)
-                    if direction > 0:
-                        far_point = p2
-            point = far_point
-            result.append(far_point)
-        return result[:len(result)-1]
 
     def draw_lines(self):
         for line in self.lines_ids:
@@ -107,17 +68,6 @@ class MyPolygon(object):
                 fill="#0000FF",
                 tags=("point")
             ))
-        
-        for point_id in range(len(self.boundary_points)):
-            self.canvas.create_oval(
-                self.boundary_points[point_id][0] - self.point_radius,
-                self.boundary_points[point_id][1] - self.point_radius,
-                self.boundary_points[point_id][0] + self.point_radius,
-                self.boundary_points[point_id][1] + self.point_radius,
-                outline="green",
-                fill="green",
-                tags=("point")
-            )
 
     def set_vertex(self, id, point):
         self.points[id] = point.copy()
@@ -399,7 +349,7 @@ class Example(Frame):
             all_points += polygon.points
         all_points += [self.points[1]]
 
-        print(self.points)
+
         
         length = len(all_points)
         matrix = [[10 ** 10 for column in range(length)]  
@@ -418,7 +368,7 @@ class Example(Frame):
                     matrix[point_id2][point_id] = distance(p1, p2)
                     matrix[point_id][point_id2] = matrix[point_id2][point_id]
 
-        print(matrix)
+
 
         def dijkstra(start, n, w):
             INF = 10 ** 10
@@ -445,7 +395,7 @@ class Example(Frame):
                 path.append(j)
                 j = prev[j]
             path = path[::-1]
-            print(path)
+
             return path
 
         res = dijkstra(0, length, matrix)
@@ -536,10 +486,6 @@ class Example(Frame):
         tree.write(file_name)
 
 if __name__ == "__main__":
-    print(line_intersect([[1,2], [3,4]], [[1,3], [3,5]]))
-    print(line_intersect([[3,4], [1,2]], [[4,5], [1,2]]))
-    print(line_intersect([[0,0], [5,5]], [[0,5], [5,0]]))
-    print(line_intersect([[5,5], [0,0]], [[0,5], [5,0]]))
     root = Tk()
     r = Example(root)
     # Example(root).pack(fill="both", expand=True)
